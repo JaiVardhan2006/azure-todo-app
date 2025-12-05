@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Azure TODO App</title></head>
+<body style="font-family:Arial;padding:20px">
+  <h1>Azure TODO App</h1>
+  <form id="f"><input id="t" placeholder="New task"><button>Add</button></form>
+  <ul id="list"></ul>
+
+<script>
+async function refresh(){
+  const r = await fetch('/api/todos'); 
+  const j = await r.json();
+  const ul = document.getElementById('list'); 
+  ul.innerHTML = '';
+  if(j.length===0) ul.innerHTML='<li>No tasks yet</li>';
+  j.forEach((it,i)=> 
+    ul.insertAdjacentHTML('beforeend','<li>'+ (it.text||JSON.stringify(it)) +'</li>')
+  );
+}
+
+document.getElementById('f').onsubmit = async e=>{
+  e.preventDefault();
+  const t = document.getElementById('t').value; 
+  if(!t) return;
+  await fetch('/api/todos',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:t})
+  });
+  document.getElementById('t').value='';
+  refresh();
+};
+
+refresh();
+</script>
+</body>
+</html>
